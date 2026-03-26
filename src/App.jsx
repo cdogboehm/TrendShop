@@ -1099,6 +1099,7 @@ export default function App() {
   const [view, setView]         = useState("landing"); // landing | app
   const [tab, setTab]           = useState("trends");
   const [showProfile, setShowProfile] = useState(false);
+  const isMobile = useIsMobile(); // MUST be here — before any conditional returns
 
   // ── Profile (localStorage persistence) ──────────────────────────────────────
   const [profile, setProfile] = useState(null);
@@ -1367,8 +1368,6 @@ export default function App() {
   }
 
   // ── App view ──────────────────────────────────────────────────────────────────
-  const isMobile = useIsMobile();
-
   return (
     <div style={{ display:"flex", height:"100vh", background:C.bgBase, overflow:"hidden" }}>
 
