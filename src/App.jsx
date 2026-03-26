@@ -2,7 +2,9 @@ import { useState, useEffect, useCallback } from "react";
 
 // ── Mobile detection hook ─────────────────────────────────────────────────────
 const useIsMobile = () => {
-  const [mobile, setMobile] = useState(window.innerWidth < 768);
+  const [mobile, setMobile] = useState(() => {
+    try { return window.innerWidth < 768; } catch { return false; }
+  });
   useEffect(() => {
     const handler = () => setMobile(window.innerWidth < 768);
     window.addEventListener("resize", handler);
@@ -354,7 +356,7 @@ const Landing = ({ onEnter }) => {
           <span style={{ fontFamily:"var(--font-display)", fontWeight:700, fontSize:15, color:C.text1 }}>TrendShop</span>
         </div>
         <div style={{ display:"flex", gap:8, alignItems:"center" }}>
-          <a href="#pricing" style={{ fontSize:12, color:C.text2, display: window.innerWidth < 400 ? "none" : "block" }}>Pricing</a>
+          <a href="#pricing" style={{ fontSize:12, color:C.text2 }}>Pricing</a>
           <Btn onClick={onEnter} variant="primary" style={{ padding:"8px 16px", fontSize:13 }}>Start free →</Btn>
         </div>
       </nav>
