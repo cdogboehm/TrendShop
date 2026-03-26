@@ -1106,6 +1106,7 @@ export default function App() {
       { headers:{ "x-rapidapi-key":key, "x-rapidapi-host":"scraptik.p.rapidapi.com" } }
     );
     if (r.status===401||r.status===403) throw Object.assign(new Error("BAD_KEY"),{code:"BAD_KEY"});
+    if (r.status===429) throw Object.assign(new Error("NOT_SUBSCRIBED"),{code:"NOT_SUBSCRIBED"});
     if (!r.ok) throw new Error(`HTTP_${r.status}`);
     return r.json();
   };
@@ -1136,13 +1137,20 @@ export default function App() {
           log(`#${tag}: no data`, "warn");
         }
       } catch(e) {
-        if (e.code==="BAD_KEY") { log("Invalid API key", "error"); setLoading(false); return; }
+        if (e.code==="BAD_KEY") {
+          log("Invalid RapidAPI key — check it in Settings", "error");
+          setLoading(false); return;
+        }
+        if (e.code==="NOT_SUBSCRIBED") {
+          log("Not subscribed to ScrapTik — go to rapidapi.com → search ScrapTik → click Subscribe", "error");
+          setLoading(false); return;
+        }
         log(`#${tag}: ${e.message}`, "warn");
       }
     }
 
     if (!results.length) {
-      log("No data returned. Check credits at app.scrapecreators.com", "error");
+      log("No data returned — make sure you subscribed to ScrapTik at rapidapi.com", "error");
       setLoading(false);
       return;
     }
@@ -1277,7 +1285,7 @@ export default function App() {
               <div>
                 <h1 style={{ fontFamily:"var(--font-display)", fontSize: isMobile?18:22, fontWeight:700, color:C.text1, margin:0 }}>Trend Radar</h1>
                 <p style={{ fontSize:12, color:C.text2, margin:"4px 0 0", fontFamily:"var(--font-mono)" }}>
-                  {isLive ? `Live · updated ${updated}` : "Demo data · connect ScrapeCreators to go live"}
+                  {isLive ? `Live · updated ${updated}` : "Demo data · add your RapidAPI key in Settings to go live"}
                 </p>
               </div>
               <div style={{ display:"flex", gap:10, alignItems:"center" }}>
