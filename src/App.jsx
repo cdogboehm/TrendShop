@@ -673,16 +673,15 @@ const Sidebar = ({ tab, setTab, profile, storefront, isLive, onProfileClick, onL
 // ─────────────────────────────────────────────────────────────────────────────
 // SETTINGS TAB
 // ─────────────────────────────────────────────────────────────────────────────
-const SettingsTab = ({ profile, scKey, cjToken, setScKey, setCjToken, onProfileEdit, apiProvider, setApiProvider, customKey, setCustomKey }) => {
-  const [scIn, setScIn]   = useState(""); // always blank on load
-  const [cjIn, setCjIn]   = useState(""); // always blank on load
+const SettingsTab = ({ profile, scKey, cjToken, setScKey, setCjToken, onProfileEdit }) => {
+  const [scIn, setScIn]   = useState("");
+  const [cjIn, setCjIn]   = useState("");
   const [cjErr, setCjErr] = useState("");
   const [cjLoad, setCjLoad] = useState(false);
   const [scMsg, setScMsg] = useState("");
 
   const saveScKey = (k) => {
-    if (!k.trim() || k.includes("•")) return;
-    // Keys are session-only — not saved to localStorage
+    if (!k.trim()) return;
     setScKey(k.trim());
     setScMsg("Connected ✓");
     setTimeout(()=>setScMsg(""),2000);
@@ -736,68 +735,38 @@ const SettingsTab = ({ profile, scKey, cjToken, setScKey, setCjToken, onProfileE
 
       <Section title="API Keys">
         <Card style={{ display:"flex", flexDirection:"column", gap:16 }}>
-          <div>
-            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:6 }}>
-              <label style={{ fontSize:12, color:C.text2, fontWeight:500 }}>
-                {apiProvider==="scrapecreators"?"ScrapeCreators API key":
-                 apiProvider==="scraptik"?"RapidAPI key — ScrapTik":
-                 apiProvider==="rapidapi_scraper7"?"RapidAPI key — Scraper7":
-                 apiProvider==="rapidapi_data"?"RapidAPI key — TikTok Data":"Custom API key"}
-              </label>
-              {scKey && <Badge color="green">Connected</Badge>}
-            </div>
-            <div style={{ display:"flex", gap:8 }}>
-              <input type="password" value={scIn} onChange={e=>setScIn(e.target.value)}
-                placeholder={
-                  apiProvider==="scrapecreators"?"Paste ScrapeCreators API key...":
-                  apiProvider==="scraptik"?"Paste RapidAPI key (X-RapidAPI-Key)...":
-                  apiProvider==="rapidapi_scraper7"?"Paste RapidAPI key (X-RapidAPI-Key)...":
-                  apiProvider==="rapidapi_data"?"Paste RapidAPI key...":"Paste your API key..."
-                }
-                style={{ flex:1 }}/>
-              <Btn onClick={()=>saveScKey(scIn)} variant="ghost" style={{ padding:"8px 12px", fontSize:12, flexShrink:0 }}>Connect</Btn>
-            </div>
-            {scMsg && <p style={{ fontSize:11, color:C.accent, marginTop:4 }}>{scMsg}</p>}
-            <p style={{ fontSize:11, color:C.text3, marginTop:6 }}>
-              {apiProvider==="scrapecreators"?<>Free key: <a href="https://app.scrapecreators.com" target="_blank" rel="noreferrer">app.scrapecreators.com</a></>:
-               apiProvider==="scraptik"?<>Subscribe at <a href="https://rapidapi.com/DataCrawler/api/scraptik" target="_blank" rel="noreferrer">rapidapi.com — ScrapTik</a> · paste your X-RapidAPI-Key</>:
-               apiProvider==="rapidapi_scraper7"?<>Subscribe at <a href="https://rapidapi.com/tikwm-tikwm-default/api/tiktok-scraper7" target="_blank" rel="noreferrer">rapidapi.com — Scraper7</a></>:
-               apiProvider==="rapidapi_data"?<>Subscribe at <a href="https://rapidapi.com" target="_blank" rel="noreferrer">rapidapi.com — search "TikTok Data API"</a></>:
-               "See Guide tab for custom API setup"}
-            </p>
-          </div>
 
-          {/* Provider selector */}
-          <div style={{ borderTop:`1px solid ${C.border}`, paddingTop:16 }}>
-            <label style={{ fontSize:12, color:C.text2, fontWeight:500, display:"block", marginBottom:8 }}>Data provider</label>
-            <p style={{ fontSize:11, color:C.text3, marginBottom:10 }}>Choose where TrendShop pulls TikTok data from. Use any API key you already have.</p>
-            <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
-              {[
-                { id:"scrapecreators",    label:"ScrapeCreators",         sub:"Free tier · app.scrapecreators.com" },
-                { id:"scraptik",          label:"RapidAPI — ScrapTik",    sub:"Search Hashtags endpoint · recommended" },
-                { id:"rapidapi_scraper7", label:"RapidAPI — Scraper7",    sub:"Broad trending feed · rapidapi.com" },
-                { id:"rapidapi_data",     label:"RapidAPI — TikTok Data", sub:"Product + hashtag data · rapidapi.com" },
-                { id:"custom",            label:"Custom endpoint",         sub:"Paste your own API base URL" },
-              ].map(p => (
-                <button key={p.id} onClick={()=>setApiProvider(p.id)}
-                  style={{ display:"flex", alignItems:"center", gap:10, padding:"10px 12px", borderRadius:C.rSm, background:apiProvider===p.id?"rgba(0,229,176,0.06)":"transparent", border:`1px solid ${apiProvider===p.id?"rgba(0,229,176,0.25)":"rgba(255,255,255,0.06)"}`, cursor:"pointer", textAlign:"left", fontFamily:"var(--font-body)", transition:"all .15s" }}>
-                  <div style={{ width:14, height:14, borderRadius:"50%", border:`2px solid ${apiProvider===p.id?"#00e5b0":"#3d4a5c"}`, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                    {apiProvider===p.id && <div style={{ width:6, height:6, borderRadius:"50%", background:"#00e5b0" }}/>}
-                  </div>
-                  <div>
-                    <p style={{ margin:0, fontSize:12, fontWeight:500, color:"#e4eaf4" }}>{p.label}</p>
-                    <p style={{ margin:0, fontSize:11, color:"#3d4a5c" }}>{p.sub}</p>
-                  </div>
-                </button>
-              ))}
-            </div>
-            {apiProvider==="custom" && (
-              <div style={{ marginTop:10 }}>
-                <label style={{ fontSize:11, color:C.text2, display:"block", marginBottom:6 }}>Base URL</label>
-                <input value={customKey} onChange={e=>setCustomKey(e.target.value)} placeholder="https://your-api.com" type="text" style={{ letterSpacing:"normal", fontFamily:"var(--font-body)" }}/>
-                <p style={{ fontSize:11, color:C.text3, marginTop:4 }}>TrendShop will call: {"<your url>"}/search?q={"<hashtag>"}</p>
+          {/* ScrapTik */}
+          <div>
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:4 }}>
+              <div>
+                <label style={{ fontSize:13, color:C.text1, fontWeight:600, display:"block" }}>RapidAPI key</label>
+                <p style={{ margin:"2px 0 0", fontSize:11, color:C.text3 }}>Powers TrendShop's live TikTok data via ScrapTik</p>
               </div>
-            )}
+              {scKey && <Badge color="green">Connected ✓</Badge>}
+            </div>
+            <div style={{ display:"flex", gap:8, marginTop:8 }}>
+              <input type="password" value={scIn} onChange={e=>setScIn(e.target.value)}
+                onKeyDown={e=>e.key==="Enter"&&saveScKey(scIn)}
+                placeholder="Paste your X-RapidAPI-Key here..."
+                style={{ flex:1 }}/>
+              <Btn onClick={()=>saveScKey(scIn)} variant={scKey?"ghost":"primary"} style={{ padding:"8px 14px", fontSize:12, flexShrink:0 }}>
+                {scKey?"Update":"Connect"}
+              </Btn>
+            </div>
+            {scMsg && <p style={{ fontSize:11, color:C.accent, marginTop:6 }}>{scMsg}</p>}
+            <div style={{ marginTop:10, background:C.bgEl, borderRadius:C.rSm, padding:"10px 12px" }}>
+              <p style={{ margin:"0 0 6px", fontSize:11, fontWeight:600, color:C.text2 }}>How to get your key:</p>
+              {["Go to rapidapi.com and sign in (free)","Search for ScrapTik and subscribe to the free plan","Click your profile → My Apps → copy your X-RapidAPI-Key","Paste it above and click Connect"].map((s,i)=>(
+                <div key={i} style={{ display:"flex", gap:8, marginBottom:4 }}>
+                  <span style={{ fontSize:10, color:C.accent, fontFamily:"var(--font-mono)", flexShrink:0, marginTop:1 }}>0{i+1}</span>
+                  <span style={{ fontSize:11, color:C.text2 }}>{s}</span>
+                </div>
+              ))}
+              <a href="https://rapidapi.com/scraptik-api-scraptik-api-default/api/scraptik" target="_blank" rel="noreferrer">
+                <Btn variant="accent" style={{ marginTop:8, width:"100%", justifyContent:"center", fontSize:11 }}>Open ScrapTik on RapidAPI ↗</Btn>
+              </a>
+            </div>
           </div>
 
           <div style={{ borderTop:`1px solid ${C.border}`, paddingTop:16 }}>
@@ -866,103 +835,69 @@ const GuideTab = ({ setTab }) => {
   const STEPS = [
     {
       num: "01",
-      title: "Connect your TikTok data API",
-      status: "required",
-      color: C.accent,
-      desc: "This is what lets TrendShop scan real TikTok hashtags and measure their engagement velocity.",
+      title: "Get your RapidAPI key",
+      status: "do this first",
+      desc: "TrendShop uses ScrapTik on RapidAPI to pull live TikTok hashtag data. Takes 2 minutes, free plan available.",
       steps: [
-        { action: "Go to", link: "https://app.scrapecreators.com", label: "app.scrapecreators.com" },
-        { action: "Click Sign Up — it's free. No credit card needed." },
-        { action: "Once logged in, go to your Dashboard and copy your API key." },
-        { action: "In TrendShop, open Settings → choose ScrapeCreators as your provider." },
-        { action: "Paste the key in the API key box and click Connect." },
-        { action: "Go to the Radar tab and click Refresh Trends — you should see live hashtags." },
+        { action: "Go to", link: "https://rapidapi.com", label: "rapidapi.com" },
+        { action: "Sign up free — no credit card needed for the basic plan." },
+        { action: "Search for", link: "https://rapidapi.com/scraptik-api-scraptik-api-default/api/scraptik", label: "ScrapTik" },
+        { action: "Click Subscribe and select the free plan." },
+        { action: "Go to your profile (top right) → My Apps → copy the X-RapidAPI-Key." },
+        { action: "In TrendShop → Settings → paste the key → click Connect." },
+        { action: "Go to Radar tab → click Refresh Trends. Done." },
       ],
-      tip: "ScrapeCreators gives you 100 free credits. Each trend scan uses about 22 credits (one per hashtag). That gives you ~4 full scans free before needing to top up.",
-      alt: "Already have a RapidAPI key? In Settings, switch the provider to RapidAPI — Scraper7 and paste your existing X-RapidAPI-Key instead.",
+      tip: "The free ScrapTik plan includes enough calls to scan trends multiple times per day. If you hit limits, paid plans start at a few dollars per month.",
+      cta: { label:"Open ScrapTik on RapidAPI ↗", href:"https://rapidapi.com/scraptik-api-scraptik-api-default/api/scraptik" },
     },
     {
       num: "02",
-      title: "Connect CJ Dropshipping",
-      status: "required",
-      color: C.accent,
-      desc: "CJ is your product supplier. Once connected, TrendShop pulls real products matched to each trend — with real prices, margins, and stock levels.",
+      title: "Find & source products with CJ",
+      status: "for product data",
+      desc: "CJ Dropshipping is your supplier. TrendShop shows you which products to sell — you source them from CJ and list them in your TikTok Shop.",
       steps: [
         { action: "Go to", link: "https://cjdropshipping.com/register.html", label: "cjdropshipping.com" },
-        { action: "Create a free account (no monthly fee — you only pay per order)." },
-        { action: "Once logged in, click My CJ in the top navigation bar." },
-        { action: "Click Authorization in the left sidebar." },
-        { action: "Click Stores — you'll see a list of platform options." },
-        { action: "Scroll down and select API from the list." },
-        { action: 'Click Generate — your API key appears immediately. Copy it.' },
-        { action: "In TrendShop → Settings → paste the key in the CJ Dropshipping box → click Connect." },
-        { action: "Products shown in the Radar tab are now real, listable CJ inventory." },
+        { action: "Create a free account — no monthly fee, you only pay per order." },
+        { action: "When you see a product in TrendShop, click Find on CJ ↗." },
+        { action: "Find the matching product on CJ and add it to your import list." },
+        { action: "List it in your TikTok Shop Seller Center manually." },
+        { action: "Once TikTok Shop API is approved, this step becomes one click." },
       ],
-      tip: "CJ has 500,000+ products, US warehouses for fast shipping, and connects directly to TikTok Shop. Their US-stocked items ship in 3–9 days which is critical for TikTok Shop's fulfillment requirements.",
+      tip: "CJ ships from US warehouses in 3–9 days. Always filter by US warehouse when listing on TikTok Shop — fast shipping = better reviews = more sales.",
+      cta: { label:"Sign up on CJ Dropshipping ↗", href:"https://cjdropshipping.com/register.html" },
     },
     {
       num: "03",
-      title: "Use the Trend Radar",
-      status: "core feature",
-      color: "var(--blue)",
-      desc: "This is the main dashboard. It scans 22 proven product hashtags on TikTok, ranks them by engagement velocity, and shows you exactly what to sell right now.",
+      title: "Find trends & push products",
+      status: "main workflow",
+      desc: "This is what you do every day. Scan trends, spot what's blowing up, find the product, list it before everyone else does.",
       steps: [
-        { action: "Click the Radar tab in the left sidebar." },
-        { action: "Click Refresh Trends to pull fresh data from TikTok." },
-        { action: "Trends are ranked by velocity score (0–100). 70+ means act now. 85+ means explosive growth." },
-        { action: "Click any trend card to run AI analysis on it." },
-        { action: "Claude identifies the opportunity window (how many hours before it saturates)." },
-        { action: "3 matched products appear below — with real cost, sell price, and margin data." },
-        { action: "Click Push to storefront to stage the product for listing." },
+        { action: "Open the Radar tab and click Refresh Trends." },
+        { action: "Look for trends with velocity 70+ — those are moving fast." },
+        { action: "Click a trend to see AI analysis and matched products." },
+        { action: "Click Find on CJ ↗ to source the product." },
+        { action: "List it in your TikTok Shop Seller Center." },
+        { action: "Click Stage to track it in your TrendShop Storefront." },
       ],
-      tip: "The best time to act on a trend is when it hits 70+ velocity and is still under 24 hours old. That's your window before every other seller sees it.",
+      tip: "Velocity 85+ with age under 24 hours is your sweet spot. That's when you're early enough to win. Wait too long and 100 other sellers have already listed it.",
+      cta: null,
     },
     {
       num: "04",
-      title: "Push products to your storefront",
-      status: "core feature",
-      color: "var(--blue)",
-      desc: "Once you've pushed products from the Radar, they appear in your Storefront tab — staged and ready to list on TikTok Shop.",
-      steps: [
-        { action: "From the Radar tab, click Push to storefront on any product." },
-        { action: "You're automatically taken to the Storefront tab." },
-        { action: "Each product card shows: CJ cost, recommended sell price, margin %, and shipping time." },
-        { action: "Use this as your staging area — review margins before going live." },
-        { action: "Click Push all to TikTok Shop to list everything at once (requires Step 05)." },
-      ],
-      tip: "Target margins above 65%. Products below 50% margin are risky after TikTok Shop's fees (which run 5–8% of sale price).",
-    },
-    {
-      num: "05",
-      title: "Connect TikTok Shop (apply now)",
+      title: "Apply for TikTok Shop API",
       status: "apply now",
-      color: C.orange,
-      desc: "This is what makes Push to Shop actually list products in your TikTok storefront automatically. Approval takes 1–2 weeks so apply today.",
+      desc: "This unlocks one-click product listing. Instead of manually listing in Seller Center, TrendShop pushes the product directly into your TikTok Shop. Apply today — approval takes 1–2 weeks.",
       steps: [
         { action: "Go to", link: "https://partner.tiktokshop.com", label: "partner.tiktokshop.com" },
-        { action: "Click Register and create a Service Provider account." },
-        { action: 'Select "Service Provider" as your account type.' },
-        { action: "Fill in your app name (use TrendShop), description, and website URL." },
-        { action: "Submit for review — TikTok will email you within 1–2 weeks." },
-        { action: "Once approved, paste your App Key and App Secret into TrendShop Settings." },
-        { action: "The Push to TikTok Shop button will go live immediately." },
+        { action: "Click Register and select Service Provider as your account type." },
+        { action: "App name: TrendShop · Category: E-commerce / Product Management." },
+        { action: "Website: paste your TrendShop Vercel URL." },
+        { action: "Submit — TikTok will email you within 1–2 weeks." },
+        { action: "Once approved, go to Settings → TikTok Shop and paste your credentials." },
+        { action: "The Push to TikTok Shop button activates immediately." },
       ],
-      tip: "While waiting for approval, you can still use TrendShop fully — just copy product details from the Storefront tab and list them manually in your TikTok Seller Center.",
-    },
-    {
-      num: "06",
-      title: "Pricing & your trial",
-      status: "info",
-      color: C.text2,
-      desc: "TrendShop gives you 7 days of full Pro access free, no card required. After that it's $39/month.",
-      steps: [
-        { action: "Your 7-day free trial starts the moment you create your profile." },
-        { action: "During the trial you get unlimited scans, live CJ products, and full AI analysis." },
-        { action: "After 7 days, upgrade to Pro ($39/mo) or Scale ($99/mo) to keep access." },
-        { action: "Pro is best for solo sellers. Scale is for teams managing multiple stores." },
-        { action: "You can cancel anytime — no lock-in." },
-      ],
-      tip: "Most sellers recover the $39/month cost in their first successful product push. One trend caught early, listed fast, can generate hundreds of sales.",
+      tip: "Apply today even if you're still testing. The clock starts when you submit, not when you're ready to use it. Being approved and waiting is better than waiting to apply.",
+      cta: { label:"Apply at partner.tiktokshop.com ↗", href:"https://partner.tiktokshop.com" },
     },
   ];
 
@@ -1042,32 +977,20 @@ const GuideTab = ({ setTab }) => {
                     </div>
                   )}
 
-                  {/* CTA for step 1 */}
-                  {i === 0 && (
+                  {/* CTA button from step data */}
+                  {step.cta && (
                     <div style={{ display:"flex", gap:8, marginTop:14 }}>
-                      <a href="https://app.scrapecreators.com" target="_blank" rel="noreferrer" style={{ flex:1 }}>
-                        <Btn variant="primary" style={{ width:"100%", justifyContent:"center" }}>Get free ScrapeCreators key ↗</Btn>
+                      <a href={step.cta.href} target="_blank" rel="noreferrer" style={{ flex:1 }}>
+                        <Btn variant={i===3?"accent":"primary"} style={{ width:"100%", justifyContent:"center" }}>{step.cta.label}</Btn>
                       </a>
-                      <Btn onClick={()=>setTab("settings")} variant="ghost" style={{ flexShrink:0 }}>Open Settings →</Btn>
+                      {i===0 && <Btn onClick={()=>setTab("settings")} variant="ghost" style={{ flexShrink:0 }}>Open Settings →</Btn>}
+                      {i===2 && <Btn onClick={()=>setTab("trends")} variant="ghost" style={{ flexShrink:0 }}>Go to Radar →</Btn>}
                     </div>
                   )}
-                  {i === 1 && (
-                    <div style={{ display:"flex", gap:8, marginTop:14 }}>
-                      <a href="https://cjdropshipping.com/register.html" target="_blank" rel="noreferrer" style={{ flex:1 }}>
-                        <Btn variant="primary" style={{ width:"100%", justifyContent:"center" }}>Sign up on CJ Dropshipping ↗</Btn>
-                      </a>
-                      <Btn onClick={()=>setTab("settings")} variant="ghost" style={{ flexShrink:0 }}>Open Settings →</Btn>
-                    </div>
-                  )}
-                  {i === 2 && (
+                  {i===2 && !step.cta && (
                     <Btn onClick={()=>setTab("trends")} variant="accent" style={{ marginTop:14, width:"100%", justifyContent:"center" }}>
-                      Go to Radar →
+                      Open Radar tab →
                     </Btn>
-                  )}
-                  {i === 4 && (
-                    <a href="https://partner.tiktokshop.com" target="_blank" rel="noreferrer">
-                      <Btn variant="accent" style={{ marginTop:14, width:"100%", justifyContent:"center" }}>Apply at partner.tiktokshop.com ↗</Btn>
-                    </a>
                   )}
                 </div>
               )}
@@ -1089,7 +1012,6 @@ const GuideTab = ({ setTab }) => {
 // ─────────────────────────────────────────────────────────────────────────────
 // MAIN APP
 // ─────────────────────────────────────────────────────────────────────────────
-const SC       = "https://api.scrapecreators.com";
 const ANTHROPIC= "https://api.anthropic.com/v1/messages";
 const CJ_AUTH  = "https://developers.cjdropshipping.com/api2.0/v1/authentication/getAccessToken";
 const CJ_PRODS = "https://developers.cjdropshipping.com/api2.0/v1/product/list";
@@ -1104,11 +1026,9 @@ export default function App() {
   // ── Profile (localStorage persistence) ──────────────────────────────────────
   const [profile, setProfile] = useState(null);
 
-  // ── API keys + provider ──────────────────────────────────────────────────────
-  const [scKey,       setScKey]       = useState("");
-  const [cjToken,     setCjToken]     = useState("");
-  const [apiProvider, setApiProvider] = useState("scrapecreators"); // scrapecreators | rapidapi_scraper7 | rapidapi_data | custom
-  const [customKey,   setCustomKey]   = useState("");
+  // ── API keys ─────────────────────────────────────────────────────────────────
+  const [scKey,   setScKey]   = useState(""); // RapidAPI key for ScrapTik
+  const [cjToken, setCjToken] = useState("");
 
   // ── Trends ───────────────────────────────────────────────────────────────────
   const [trends,   setTrends]   = useState(MOCK_TRENDS);
@@ -1179,48 +1099,13 @@ export default function App() {
     setLogs(prev => [...prev.slice(-9), { msg, type, t: new Date().toLocaleTimeString() }]);
   }, []);
 
-  // ── SC fetch ──────────────────────────────────────────────────────────────────
-  const scFetch = async (key, path) => {
-    const r = await fetch(`${SC}${path}`, { headers:{ "x-api-key":key } });
+  // ── ScrapTik fetch — Search Hashtags endpoint ────────────────────────────────
+  const scrapTikFetch = async (key, tag) => {
+    const r = await fetch(
+      `https://scraptik.p.rapidapi.com/search-hashtags?keyword=${encodeURIComponent(tag)}&count=20&cursor=0`,
+      { headers:{ "x-rapidapi-key":key, "x-rapidapi-host":"scraptik.p.rapidapi.com" } }
+    );
     if (r.status===401||r.status===403) throw Object.assign(new Error("BAD_KEY"),{code:"BAD_KEY"});
-    if (!r.ok) throw new Error(`HTTP_${r.status}`);
-    return r.json();
-  };
-
-  // ── Multi-provider fetch ─────────────────────────────────────────────────────
-  const providerFetch = async (key, tag) => {
-    if (apiProvider === "scrapecreators") {
-      return scFetch(key, `/v1/tiktok/search/hashtag?hashtag=${encodeURIComponent(tag)}&count=5`);
-    }
-    // ScrapTik — Search Hashtags endpoint (GET /search-hashtags?keyword=&count=20&cursor=0)
-    if (apiProvider === "scraptik") {
-      const r = await fetch(`https://scraptik.p.rapidapi.com/search-hashtags?keyword=${encodeURIComponent(tag)}&count=20&cursor=0`, {
-        headers:{ "x-rapidapi-key":key, "x-rapidapi-host":"scraptik.p.rapidapi.com", "Content-Type":"application/json" }
-      });
-      if (r.status===401||r.status===403) throw Object.assign(new Error("BAD_KEY"),{code:"BAD_KEY"});
-      if (!r.ok) throw new Error(`HTTP_${r.status}`);
-      return r.json();
-    }
-    if (apiProvider === "rapidapi_scraper7") {
-      const r = await fetch(`https://tiktok-scraper7.p.rapidapi.com/challenge/search?keywords=${encodeURIComponent(tag)}&count=10&cursor=0`, {
-        headers:{ "x-rapidapi-key":key, "x-rapidapi-host":"tiktok-scraper7.p.rapidapi.com" }
-      });
-      if (r.status===401||r.status===403) throw Object.assign(new Error("BAD_KEY"),{code:"BAD_KEY"});
-      if (!r.ok) throw new Error(`HTTP_${r.status}`);
-      return r.json();
-    }
-    if (apiProvider === "rapidapi_data") {
-      const r = await fetch(`https://tiktok-data.p.rapidapi.com/hashtag?hashtag=${encodeURIComponent(tag)}`, {
-        headers:{ "x-rapidapi-key":key, "x-rapidapi-host":"tiktok-data.p.rapidapi.com" }
-      });
-      if (r.status===401||r.status===403) throw Object.assign(new Error("BAD_KEY"),{code:"BAD_KEY"});
-      if (!r.ok) throw new Error(`HTTP_${r.status}`);
-      return r.json();
-    }
-    // custom — user-supplied endpoint base
-    const r = await fetch(`${customKey}/search?q=${encodeURIComponent(tag)}`, {
-      headers:{ "Authorization":`Bearer ${key}` }
-    });
     if (!r.ok) throw new Error(`HTTP_${r.status}`);
     return r.json();
   };
@@ -1234,13 +1119,12 @@ export default function App() {
     setProducts({});
     const results = [];
 
-    const providerLabel = apiProvider==="scrapecreators"?"ScrapeCreators":apiProvider==="scraptik"?"ScrapTik":apiProvider==="rapidapi_scraper7"?"RapidAPI Scraper7":apiProvider==="rapidapi_data"?"RapidAPI Data":"Custom API";
-    log(`Scanning product hashtags via ${providerLabel}...`);
+    log("Scanning product hashtags via ScrapTik...");
 
     const searchBatch = getSearchBatch(); // fresh random 22 tags every scan
     for (const { tag, category } of searchBatch) {
       try {
-        const data = await providerFetch(key, tag);
+        const data = await scrapTikFetch(key, tag);
         const arr = findArray(data);
         if (arr && arr.length) {
           const total = arr.reduce((s,v) => s+parseInt(v?.statistics?.play_count||v?.stats?.playCount||v?.playCount||0,10), 0);
@@ -1630,10 +1514,6 @@ export default function App() {
               setScKey={(k)=>{ setScKey(k); if(k) loadTrends(k); }}
               setCjToken={setCjToken}
               onProfileEdit={()=>setShowProfile(true)}
-              apiProvider={apiProvider}
-              setApiProvider={setApiProvider}
-              customKey={customKey}
-              setCustomKey={setCustomKey}
             />
           </div>
         )}
